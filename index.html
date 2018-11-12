@@ -3,6 +3,12 @@
     <title>Todo App</title>
     <script>
       (function(){
+          window.BOOMR_config = window.BOOMR_config || {};
+          BOOMR_config.autorun = false;
+          BOOMR_config.History = {
+              auto: true,
+              enabled: true
+          };
           // Boomerang Loader Snippet version 10
           if (window.BOOMR && (window.BOOMR.version || window.BOOMR.snippetExecuted)) {
               return;

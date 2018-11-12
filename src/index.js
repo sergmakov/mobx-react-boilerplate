@@ -2,22 +2,24 @@ import DevTools from 'mobx-react-devtools';
 import GlobalContainer from './components/GlobalContainer';
 import GlobalContainerModel from './models/GlobalContainerModel';
 import React from 'react';
-import { Router, Route, Link } from "react-router-dom";
-import createHistory from 'history/createBrowserHistory'
+import { Router, Route, Link } from "react-router-3";
+import { useBasename } from "history";
+import createHashHistory from "history/lib/createHashHistory";
+import createBrowserHistory from "history/lib/createBrowserHistory";
 
 
 import { render } from 'react-dom';
 
 const store = new GlobalContainerModel();
-
-const history = createHistory({
-  basename: '/'
-})
+let hadRouteChange;
+const history = useBasename(createBrowserHistory)({
+  basename: location.pathname
+});
 
 function hookHistoryBoomerang() {
   if (window.BOOMR && BOOMR.version) {
       if (BOOMR.plugins && BOOMR.plugins.History) {
-          BOOMR.plugins.History.hook(history, true);
+          BOOMR.plugins.History.hook(history, hadRouteChange);
       }
       return true;
   }
@@ -41,11 +43,23 @@ const unlisten = history.listen((location, action) => {
   console.log(action, location.pathname, location.state)
 })
 
-const Index = () => <div>Index</div>;
-const About = () => <div>About</div>;
+const Index = () => (
+  <div>
+    Index
+    <Link to="/">Home</Link>
+    <Link to="/about/">About</Link>
+  </div>
+);
+const About = () => (
+  <div>
+    About
+    <Link to="/">Home</Link>
+    <Link to="/about/">About</Link>
+  </div>
+);
 
 render(
-  <Router history={history}>
+  <Router history={history} onEnter={hadRouteChange}>
     <div>
       <DevTools />
       <Link to="/">Home</Link>
