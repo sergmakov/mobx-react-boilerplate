@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
-import { action, observable } from 'mobx';
 import Todo from './Todo';
-import { observer } from 'mobx-react';
 
-
-@observer
-class TodoList extends React.Component {
-  @observable newTodoTitle = '';
+class TodoList extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      newTodoTitle: '',
+      todos: [],
+    };
+    this.onFinishedClick = this.onFinishedClick.bind(this)
+  }
 
   render() {
     return (
@@ -15,33 +18,51 @@ class TodoList extends React.Component {
           New Todo:
           <input
             type="text"
-            value={this.newTodoTitle}
+            value={this.state.newTodoTitle}
             onChange={this.handleInputChange}
           />
           <button type="submit">Add</button>
         </form>
         <hr />
         <ul>
-          {this.props.store.todos.map(todo => (
-            <Todo todo={todo} key={todo.id} />
+          {this.state.todos.map((todo, idx) => (
+            <Todo todo={todo} key={idx} onFinishedClick={this.onFinishedClick} />
           ))}
         </ul>
-        Tasks left: {this.props.store.unfinishedTodoCount}
+        Tasks left: {this.state.todos.length}
       </div>
     );
   }
 
-  @action
   handleInputChange = e => {
-    this.newTodoTitle = e.target.value;
+    this.setState({
+      newTodoTitle: e.target.value,
+    });
   };
 
-  @action
   handleFormSubmit = e => {
-    this.props.store.addTodo(this.newTodoTitle);
-    this.newTodoTitle = "";
+    this.setState(state => ({
+      todos: state.todos.concat({
+        id: Math.random(),
+        title: state.newTodoTitle,
+        finished: false,
+      }),
+      newTodoTitle: '',
+    }));
+    console.log(this.state.newTodoTitle);
+    this.setState({
+      newTodoTitle: 'check',
+    });
+    console.log(this.state.newTodoTitle);
     e.preventDefault();
   };
+
+  onFinishedClick = id => {
+    const newTodo = [...this.state.todos];
+    const updatedTodo = newTodo.find(item => item.id === id);
+    updatedTodo.finished = !updatedTodo.finished;
+    this.setState({ todo: newTodo });
+  }
 }
 
 export default TodoList;
